@@ -10,8 +10,9 @@ SCRIPT_NAME="${0##*/}"
 
 logInfo "STARTING ${SCRIPT_NAME}"
 
+# Check if running as root
 if [ "$EUID" -ne 0 ]
-    then echo "Please run as root"
+    then logInfo "Please run as root"
     exit
 fi
 

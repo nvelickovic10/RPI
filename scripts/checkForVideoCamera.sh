@@ -10,6 +10,11 @@ SCRIPT_NAME="${0##*/}"
 
 logInfo "STARTING ${SCRIPT_NAME}"
 
+if [ "$EUID" -ne 0 ]
+    then echo "Please run as root"
+    exit
+fi
+
 function startMotionService {
     if [[ "${MOTION_STATUS}" == "inactive" ]]; then
         logInfo "Starting motion"

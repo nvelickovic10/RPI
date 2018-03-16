@@ -6,14 +6,25 @@ cd "$(dirname "$0")"
 # Include common functions
 . common.sh
 
-logInfo "STARTING checkConnection.sh"
+SCRIPT_NAME="${0##*/}"
 
-PUBLIC_IP_ADDRESS_FILE=./PUBLIC_IP_ADDRESS.txt
+logInfo "STARTING ${SCRIPT_NAME}"
+
+PUBLIC_IP_ADDRESS_FILE="/tmp/PUBLIC_IP_ADDRESS.txt"
 
 CURRENT_IP_ADDRESS=$(curl -s ipinfo.io/ip)
-PUBLIC_IP_ADDRESS=$(cat ${PUBLIC_IP_ADDRESS_FILE})
 
-echo $PUBLIC_IP_ADDRESS $CURRENT_IP_ADDRESS
+if [ ! -f  ${PUBLIC_IP_ADDRESS_FILE} ]; then
+    logInfo "First time check"
+    PUBLIC_IP_ADDRESS=""
+    STATUS=2
+else
+    PUBLIC_IP_ADDRESS=$(cat ${PUBLIC_IP_ADDRESS_FILE})
+fi
+
+logInfo "OLD: $PUBLIC_IP_ADDRESS"
+logInfo "NEW: $CURRENT_IP_ADDRESS"
+
 STATUS=0
 if [[ ${CURRENT_IP_ADDRESS} == ${PUBLIC_IP_ADDRESS} ]]; then
     logInfo "IP address did not change"
@@ -21,9 +32,9 @@ else
     logInfo "IP address changed!!"
     AA=${CURRENT_IP_ADDRESS}
     echo ${CURRENT_IP_ADDRESS} > ${PUBLIC_IP_ADDRESS_FILE}
-    STATUS=1
+    mpack -s "Internet connection checker" ${PUBLIC_IP_ADDRESS_FILE} nvelickovic10@gmail.com
 fi
 
-logInfo "FINISHED checkConnection.sh"
+logInfo "FINISHED ${SCRIPT_NAME}"
 exit ${STATUS}
 #END

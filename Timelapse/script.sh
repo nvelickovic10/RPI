@@ -8,25 +8,136 @@ my_dir="$(dirname "$0")"
 # Include configuration
 . ${my_dir}/config.conf
 
-function capture_snapshot {
-    local SNAPSHOT_FILENAME="${SNAPSHOT_LOCATION}/$(${SNAPSHOT_NAME})$1.jpg"
-    local SNAPSHOT_TEXT="$(${TEXT})"
-    local COMMAND="ffmpeg -loglevel panic -f video4linux2 -s ${FRAME_SIZE} -i ${INPUT_DEVICE} -vf drawtext="fontfile=${TEXT_FONT}:text=${SNAPSHOT_TEXT}:${TEXT_OPTIONS}" -vframes 1 ${SNAPSHOT_FILENAME}"
-    # logInfo "Executing command: ${COMMAND}"
-    eval ${COMMAND}
-    logInfo "Snapshot ${SNAPSHOT_FILENAME} captured"
-}
-# capture_snapshot "SNAPSHOT_NAME_MODIFIER"
+# Check if running as root
+if [ "$EUID" -ne 0 ]
+    then logInfo "Please run as root"
+    exit
+fi
 
-function render_timelapse {
-    local TIMELAPSE_FILENAME="${TIMELAPSE_LOCATION}/$(${TIMELAPSE_NAME})$1.mp4"
-    local COMMAND="ffmpeg -loglevel panic -framerate ${TIMELAPSE_FRAMERATE} -pattern_type glob -i '${SNAPSHOT_LOCATION}/*.jpg' -c:v libx264 -r 30 -pix_fmt yuv420p ${TIMELAPSE_FILENAME}"
-    # logInfo "Executing command: ${COMMAND}"
-    eval ${COMMAND}
-    logInfo "Timelapse ${TIMELAPSE_FILENAME} rendered"
-}
-# render_timelapse "TIMELAPSE_NAME_MODIFIER"
+function start_webserver_process {
+    local START_TIMESTAMP=`date +%s`
+    
+    local TIMELAPSE_PID=$(cat ${PID_LOCATION}/timelapse.pid)
+    local COMMAND="motion -c motionOnlyWebserver"
+    logInfo "Executing command: ${COMMAND}"
+    eval ${COMMAND} &
+    local WEBSERVER_PID=$!
+    echo ${WEBSERVER_PID} > ${PID_LOCATION}/webserver.pid
 
+    local RUNTIME=$(($(date +%s)-START_TIMESTAMP))
+    logInfo "Webserver  process ${TIMELAPSE_PID} started, RUNTIME: ${RUNTIME}"
+}
+
+function stop_webserver_process {
+    local START_TIMESTAMP=`date +%s`
+    
+    local WEBSERVER_PID=$(cat ${PID_LOCATION}/webserver.pid)
+    local COMMAND="kill -9 ${WEBSERVER_PID}"
+    logInfo "Executing command: ${COMMAND}"
+    eval ${COMMAND}
+    rm ${PID_LOCATION}/webserver.pid
+
+    local RUNTIME=$(($(date +%s)-START_TIMESTAMP))
+    logInfo "Webserver process ${TIMELAPSE_PID} stopped, RUNTIME: ${RUNTIME}"
+}
+
+function start_webserver {
+    local START_TIMESTAMP=`date +%s`
+
+    if [ ! -f ${PID_LOCATION}/webserver.pid ]; then
+        start_webserver_process
+    else
+        logInfo "Already Started!!!"
+    fi
+    
+    local RUNTIME=$(($(date +%s)-START_TIMESTAMP))
+    logInfo "Webserver started, RUNTIME: ${RUNTIME}"
+}
+
+function stop_webserver {
+    local START_TIMESTAMP=`date +%s`
+    
+    if [ -f ${PID_LOCATION}/webserver.pid ]; then
+        stop_webserver_process
+    else
+        logInfo "Already stopped!!!"
+    fi
+
+    local RUNTIME=$(($(date +%s)-START_TIMESTAMP))
+    logInfo "Webserver stopped, RUNTIME: ${RUNTIME}"
+}
+
+function restart_webserver {
+    local START_TIMESTAMP=`date +%s`
+
+    stop_webserver_process && start_webserver_process
+    
+    local RUNTIME=$(($(date +%s)-START_TIMESTAMP))
+    logInfo "Webserver restarted, RUNTIME: ${RUNTIME}"
+}
+
+function start_timelapse_process {
+    local START_TIMESTAMP=`date +%s`
+
+    local COMMAND="motion -c ./motionTimelapseNoWebserver.conf &"
+    logInfo "Executing command: ${COMMAND}"
+    eval ${COMMAND} &
+    local TIMELAPSE_PID=$!
+    echo ${TIMELAPSE_PID} > ${PID_LOCATION}/timelapse.pid
+
+    local RUNTIME=$(($(date +%s)-START_TIMESTAMP))
+    logInfo "Timelapse process ${TIMELAPSE_PID} started, RUNTIME: ${RUNTIME}"
+}
+
+function stop_timelapse_process {
+    local START_TIMESTAMP=`date +%s`
+    
+    local TIMELAPSE_PID=$(cat ${PID_LOCATION}/timelapse.pid)
+    local COMMAND="kill -9 ${TIMELAPSE_PID}"
+    logInfo "Executing command: ${COMMAND}"
+    eval ${COMMAND}
+    rm ${PID_LOCATION}/timelapse.pid
+
+    local RUNTIME=$(($(date +%s)-START_TIMESTAMP))
+    logInfo "Timelapse process ${TIMELAPSE_PID} stopped, RUNTIME: ${RUNTIME}"
+}
+
+function start_timelapse {
+    local START_TIMESTAMP=`date +%s`
+
+    if [ ! -f ${PID_LOCATION}/timelapse.pid ]; then
+        start_timelapse_process
+    else
+        logInfo "Already Started!!!"
+    fi
+    
+    local RUNTIME=$(($(date +%s)-START_TIMESTAMP))
+    logInfo "Timelapse started, RUNTIME: ${RUNTIME}"
+}
+
+function stop_timelapse {
+    local START_TIMESTAMP=`date +%s`
+    
+    if [ -f ${PID_LOCATION}/timelapse.pid ]; then
+        stop_timelapse_process
+    else
+        logInfo "Already stopped!!!"
+    fi
+
+    local RUNTIME=$(($(date +%s)-START_TIMESTAMP))
+    logInfo "Timelapse stopped, RUNTIME: ${RUNTIME}"
+}
+
+function restart_timelapse {
+    local START_TIMESTAMP=`date +%s`
+
+    stop_timelapse_process && start_timelapse_process
+    
+    local RUNTIME=$(($(date +%s)-START_TIMESTAMP))
+    logInfo "Timelapse restarted, RUNTIME: ${RUNTIME}"
+}
+
+mkdir -p ${PID_LOCATION}
 
 POSITIONAL=()
 while [[ $# -gt 0 ]]
@@ -34,19 +145,33 @@ do
 key="$1"
 
 case $key in
-    -c|--capture)
-    rm -rf ${SNAPSHOT_LOCATION} && mkdir ${SNAPSHOT_LOCATION}
-    for ((i=1;i<=${SNAPSHOT_COUNT};i++)); 
-    do 
-        capture_snapshot "-$i"
-        sleep ${SNAPSHOT_PERIOD}
-    done
+    --start-timelapse)
+    start_timelapse
     shift # past argument
     shift # past value
     ;;
-    -r|--render)
-    rm -rf ${TIMELAPSE_LOCATION} && mkdir ${TIMELAPSE_LOCATION}
-    render_timelapse
+    --stop-timelapse)
+    stop_timelapse
+    shift # past argument
+    shift # past value
+    ;;
+    --restart-timelapse)
+    restart_timelapse
+    shift # past argument
+    shift # past value
+    ;;
+    --start-webserver)
+    start_webserver
+    shift # past argument
+    shift # past value
+    ;;
+    --stop-webserver)
+    stop_webserver
+    shift # past argument
+    shift # past value
+    ;;
+    --restart-webserver)
+    restart_webserver
     shift # past argument
     shift # past value
     ;;

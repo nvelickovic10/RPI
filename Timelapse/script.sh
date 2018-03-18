@@ -18,7 +18,7 @@ function start_webserver_process {
     local START_TIMESTAMP=`date +%s`
     
     local TIMELAPSE_PID=$(cat ${PID_LOCATION}/timelapse.pid)
-    local COMMAND="motion -c motionOnlyWebserver"
+    local COMMAND="motion -c motionOnlyWebserver.conf"
     logInfo "Executing command: ${COMMAND}"
     eval ${COMMAND} &
     local WEBSERVER_PID=$!

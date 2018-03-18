@@ -4,3 +4,6 @@ node_modules/
 # Timelapse
 snapshot/
 timelapse/
+
+# Motion
+Motion/v4l2loopback/

@@ -81,7 +81,7 @@ function restart_webserver {
 function start_timelapse_process {
     local START_TIMESTAMP=`date +%s`
 
-    local COMMAND="motion -c motionTimelapseNoWebserver.conf &> ${LOG_LOCATION}/webserver.log"
+    local COMMAND="motion -c motionTimelapseNoWebserver.conf &> ${LOG_LOCATION}/timelapse.log"
     logInfo "Executing command: ${COMMAND}"
     eval ${COMMAND} &
     local TIMELAPSE_PID=$!

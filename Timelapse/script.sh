@@ -32,7 +32,7 @@ function stop_webserver_process {
     local START_TIMESTAMP=`date +%s`
     
     local WEBSERVER_PID=$(cat ${PID_LOCATION}/webserver.pid)
-    local COMMAND="kill -9 ${WEBSERVER_PID}"
+    local COMMAND="kill -9 ${WEBSERVER_PID} && kill -9 $(pgrep -f 'motion -c motionOnlyWebserver.conf')"
     logInfo "Executing command: ${COMMAND}"
     eval ${COMMAND}
     rm ${PID_LOCATION}/webserver.pid
@@ -79,7 +79,7 @@ function restart_webserver {
 function start_timelapse_process {
     local START_TIMESTAMP=`date +%s`
 
-    local COMMAND="motion -c ./motionTimelapseNoWebserver.conf &"
+    local COMMAND="motion -c motionTimelapseNoWebserver.conf"
     logInfo "Executing command: ${COMMAND}"
     eval ${COMMAND} &
     local TIMELAPSE_PID=$!
@@ -93,7 +93,7 @@ function stop_timelapse_process {
     local START_TIMESTAMP=`date +%s`
     
     local TIMELAPSE_PID=$(cat ${PID_LOCATION}/timelapse.pid)
-    local COMMAND="kill -9 ${TIMELAPSE_PID}"
+    local COMMAND="kill -9 ${TIMELAPSE_PID} && kill -9 $(pgrep -f 'motion -c motionTimelapseNoWebserver.conf')"
     logInfo "Executing command: ${COMMAND}"
     eval ${COMMAND}
     rm ${PID_LOCATION}/timelapse.pid

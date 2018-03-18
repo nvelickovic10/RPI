@@ -1,14 +1,9 @@
 #!/bin/bash
 
-# Change dir to script dir
-cd "$(dirname "$0")"
+my_dir="$(dirname "$0")"
 
 # Include common functions
-. common.sh
-
-SCRIPT_NAME="${0##*/}"
-
-logInfo "STARTING ${SCRIPT_NAME}"
+. ${my_dir}/util/common.sh
 
 if [[ ${UPDATE_SERVER_ADDRESS} == false ]]; then
     logInfo "SKIPPING ${SCRIPT_NAME}"
@@ -22,5 +17,4 @@ PUBLIC_IP_ADDRESS=$(cat ${PUBLIC_IP_ADDRESS_FILE})
 
 sed -i -e 's#$PUBLIC_IP_ADDRESS#'"${PUBLIC_IP_ADDRESS}"'#g' ../pages/index.js
 
-logInfo "FINISHED ${SCRIPT_NAME}"
 #END

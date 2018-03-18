@@ -1,14 +1,9 @@
 #!/bin/bash
 
-# Change dir to script dir
-cd "$(dirname "$0")"
+my_dir="$(dirname "$0")"
 
 # Include common functions
-. common.sh
-
-SCRIPT_NAME="${0##*/}"
-
-logInfo "STARTING ${SCRIPT_NAME}"
+. ${my_dir}/util/common.sh
 
 PUBLIC_IP_ADDRESS_FILE="/tmp/PUBLIC_IP_ADDRESS.txt"
 
@@ -32,5 +27,4 @@ else
     mpack -s "Internet connection checker" ${PUBLIC_IP_ADDRESS_FILE} nvelickovic10@gmail.com
 fi
 
-logInfo "FINISHED ${SCRIPT_NAME}"
 #END

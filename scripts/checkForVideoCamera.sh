@@ -1,14 +1,9 @@
 #!/bin/bash
 
-# Change dir to script dir
-cd "$(dirname "$0")"
+my_dir="$(dirname "$0")"
 
 # Include common functions
-. common.sh
-
-SCRIPT_NAME="${0##*/}"
-
-logInfo "STARTING ${SCRIPT_NAME}"
+. ${my_dir}/util/common.sh
 
 # Check if running as root
 if [ "$EUID" -ne 0 ]
@@ -45,5 +40,4 @@ else
     stopMotionService
 fi
 
-logInfo "FINISHED ${SCRIPT_NAME}"
 # END

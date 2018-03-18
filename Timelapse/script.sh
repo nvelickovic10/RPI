@@ -14,11 +14,13 @@ if [ "$EUID" -ne 0 ]
     exit
 fi
 
+mkdir -p ${PID_LOCATION} mkdir -p ${LOG_LOCATION}
+
 function start_webserver_process {
     local START_TIMESTAMP=`date +%s`
     
     local TIMELAPSE_PID=$(cat ${PID_LOCATION}/timelapse.pid)
-    local COMMAND="motion -c motionOnlyWebserver.conf"
+    local COMMAND="motion -c motionOnlyWebserver.conf &> ${LOG_LOCATION}/webserver.log"
     logInfo "Executing command: ${COMMAND}"
     eval ${COMMAND} &
     local WEBSERVER_PID=$!
@@ -79,7 +81,7 @@ function restart_webserver {
 function start_timelapse_process {
     local START_TIMESTAMP=`date +%s`
 
-    local COMMAND="motion -c motionTimelapseNoWebserver.conf"
+    local COMMAND="motion -c motionTimelapseNoWebserver.conf &> ${LOG_LOCATION}/webserver.log"
     logInfo "Executing command: ${COMMAND}"
     eval ${COMMAND} &
     local TIMELAPSE_PID=$!
@@ -137,7 +139,6 @@ function restart_timelapse {
     logInfo "Timelapse restarted, RUNTIME: ${RUNTIME}"
 }
 
-mkdir -p ${PID_LOCATION}
 
 POSITIONAL=()
 while [[ $# -gt 0 ]]

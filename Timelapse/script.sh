@@ -14,7 +14,7 @@ if [ "$EUID" -ne 0 ]
     exit
 fi
 
-mkdir -p ${PID_LOCATION} mkdir -p ${LOG_LOCATION}
+mkdir -p ${PID_LOCATION} && mkdir -p ${LOG_LOCATION}
 
 function start_webserver_process {
     local START_TIMESTAMP=`date +%s`

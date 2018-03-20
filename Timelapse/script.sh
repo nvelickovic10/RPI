@@ -238,6 +238,21 @@ case $key in
     shift # past argument
     shift # past value
     ;;
+    --start-webserver)
+    start_webserver
+    shift # past argument
+    shift # past value
+    ;;
+    --stop-cloner)
+    stop_cloner
+    shift # past argument
+    shift # past value
+    ;;
+    --restart-cloner)
+    restart_cloner
+    shift # past argument
+    shift # past value
+    ;;
     *)    # unknown option
     POSITIONAL+=("$1") # save it in an array for later
     shift # past argument

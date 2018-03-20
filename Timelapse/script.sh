@@ -162,10 +162,8 @@ function stop_cloner_process {
     local CLONER_PID=$(cat ${PID_LOCATION}/cloner.pid)
     local COMMAND="kill -9 ${CLONER_PID} ; kill -9 $(pgrep -f 'ffmpeg -f video4linux2 -s 640x480 -i /dev/video0 -codec copy -f v4l2 /dev/video1 -codec copy -f v4l2 /dev/video2')"
     logInfo "Executing command: ${COMMAND}"
-    eval ${COMMAND}
+    eval ${COMMAND} && modprobe -r v4l2loopback
     rm ${PID_LOCATION}/cloner.pid
-
-    modprobe -r v4l2loopback
 
     local RUNTIME=$(($(date +%s)-START_TIMESTAMP))
     logInfo "Cloner process ${TIMELAPSE_PID} stopped, RUNTIME: ${RUNTIME}"

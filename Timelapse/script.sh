@@ -142,7 +142,7 @@ function restart_timelapse {
 function start_cloner_process {
     local START_TIMESTAMP=`date +%s`
 
-    local COMMAND="./cloneVideodevice.sh &>/dev/null"
+    local COMMAND="./cloneVideodevice.sh"
     logInfo "Executing command: ${COMMAND}"
     eval ${COMMAND} &
     local CLONER_PID=$!
@@ -156,7 +156,7 @@ function stop_cloner_process {
     local START_TIMESTAMP=`date +%s`
     
     local CLONER_PID=$(cat ${PID_LOCATION}/cloner.pid)
-    local COMMAND="kill -9 ${CLONER_PID} ; kill -9 $(pgrep -f './cloneVideodevice.sh &>/dev/null')"
+    local COMMAND="kill -9 ${CLONER_PID} ; kill -9 $(pgrep -f './cloneVideodevice.sh')"
     logInfo "Executing command: ${COMMAND}"
     eval ${COMMAND}
     rm ${PID_LOCATION}/cloner.pid
@@ -200,8 +200,6 @@ function restart_cloner {
     logInfo "Cloner restarted, RUNTIME: ${RUNTIME}"
 }
 
-restart_cloner
-
 POSITIONAL=()
 while [[ $# -gt 0 ]]
 do
@@ -226,7 +224,7 @@ case $key in
     --start-webserver)
     start_webserver
     shift # past argument
-    shift # past value
+    shift # past valuewebserver
     ;;
     --stop-webserver)
     stop_webserver
@@ -238,8 +236,8 @@ case $key in
     shift # past argument
     shift # past value
     ;;
-    --start-webserver)
-    start_webserver
+    --start-cloner)
+    start_cloner
     shift # past argument
     shift # past value
     ;;

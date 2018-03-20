@@ -139,15 +139,68 @@ function restart_timelapse {
     logInfo "Timelapse restarted, RUNTIME: ${RUNTIME}"
 }
 
-function cloneVideoDevice {
+function start_cloner_process {
     local START_TIMESTAMP=`date +%s`
 
-    ./cloneVideodevice.sh &>/dev/null &
-    
+    local COMMAND="./cloneVideodevice.sh &>/dev/null"
+    logInfo "Executing command: ${COMMAND}"
+    eval ${COMMAND} &
+    local CLONER_PID=$!
+    echo ${TIMELAPSE_PID} > ${PID_LOCATION}/cloner.pid
+
     local RUNTIME=$(($(date +%s)-START_TIMESTAMP))
-    logInfo "Timelapse restarted, RUNTIME: ${RUNTIME}"
+    logInfo "Cloner process ${TIMELAPSE_PID} started, RUNTIME: ${RUNTIME}"
 }
 
+function stop_cloner_process {
+    local START_TIMESTAMP=`date +%s`
+    
+    local CLONER_PID=$(cat ${PID_LOCATION}/cloner.pid)
+    local COMMAND="kill -9 ${CLONER_PID} ; kill -9 $(pgrep -f './cloneVideodevice.sh &>/dev/null')"
+    logInfo "Executing command: ${COMMAND}"
+    eval ${COMMAND}
+    rm ${PID_LOCATION}/cloner.pid
+
+    local RUNTIME=$(($(date +%s)-START_TIMESTAMP))
+    logInfo "Cloner process ${TIMELAPSE_PID} stopped, RUNTIME: ${RUNTIME}"
+}
+
+function start_cloner {
+    local START_TIMESTAMP=`date +%s`
+
+    if [ ! -f ${PID_LOCATION}/cloner.pid ]; then
+        start_cloner_process
+    else
+        logInfo "Already Started!!!"
+    fi
+    
+    local RUNTIME=$(($(date +%s)-START_TIMESTAMP))
+    logInfo "Cloner started, RUNTIME: ${RUNTIME}"
+}
+
+function stop_cloner {
+    local START_TIMESTAMP=`date +%s`
+    
+    if [ -f ${PID_LOCATION}/cloner.pid ]; then
+        stop_cloner_process
+    else
+        logInfo "Already stopped!!!"
+    fi
+
+    local RUNTIME=$(($(date +%s)-START_TIMESTAMP))
+    logInfo "Cloner stopped, RUNTIME: ${RUNTIME}"
+}
+
+function restart_cloner {
+    local START_TIMESTAMP=`date +%s`
+
+    stop_cloner_process && start_cloner_process
+    
+    local RUNTIME=$(($(date +%s)-START_TIMESTAMP))
+    logInfo "Cloner restarted, RUNTIME: ${RUNTIME}"
+}
+
+restart_cloner
 
 POSITIONAL=()
 while [[ $# -gt 0 ]]

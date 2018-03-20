@@ -204,6 +204,32 @@ function restart_cloner {
     logInfo "Cloner restarted, RUNTIME: ${RUNTIME}"
 }
 
+function stop_all {
+    local START_TIMESTAMP=`date +%s`
+
+    stop_timelapse
+    sleep 2
+    stop_webserver
+    sleep2
+    stop_cloner
+    
+    local RUNTIME=$(($(date +%s)-START_TIMESTAMP))
+    logInfo "Everything stopped, RUNTIME: ${RUNTIME}"
+}
+
+function start_all {
+    local START_TIMESTAMP=`date +%s`
+
+    start_cloner
+    sleep 2
+    start_webserver
+    sleep2
+    start_timelapse
+    
+    local RUNTIME=$(($(date +%s)-START_TIMESTAMP))
+    logInfo "Everything started, RUNTIME: ${RUNTIME}"
+}
+
 POSITIONAL=()
 while [[ $# -gt 0 ]]
 do
@@ -252,6 +278,16 @@ case $key in
     ;;
     --restart-cloner)
     restart_cloner
+    shift # past argument
+    shift # past value
+    ;;
+    --stop-all)
+    stop_all
+    shift # past argument
+    shift # past value
+    ;;
+    --start-all)
+    start_all
     shift # past argument
     shift # past value
     ;;

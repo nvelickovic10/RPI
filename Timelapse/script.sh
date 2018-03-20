@@ -142,7 +142,7 @@ function restart_timelapse {
 function start_cloner_process {
     local START_TIMESTAMP=`date +%s`
 
-    local COMMAND="./cloneVideodevice.sh"
+    local COMMAND="./cloneVideoDevice.sh"
     logInfo "Executing command: ${COMMAND}"
     eval ${COMMAND} &
     local CLONER_PID=$!
@@ -156,7 +156,7 @@ function stop_cloner_process {
     local START_TIMESTAMP=`date +%s`
     
     local CLONER_PID=$(cat ${PID_LOCATION}/cloner.pid)
-    local COMMAND="kill -9 ${CLONER_PID} ; kill -9 $(pgrep -f './cloneVideodevice.sh')"
+    local COMMAND="kill -9 ${CLONER_PID} ; kill -9 $(pgrep -f './cloneVideoDevice.sh')"
     logInfo "Executing command: ${COMMAND}"
     eval ${COMMAND}
     rm ${PID_LOCATION}/cloner.pid

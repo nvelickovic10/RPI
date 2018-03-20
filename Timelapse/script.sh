@@ -150,7 +150,7 @@ function start_cloner_process {
     logInfo "Executing command: ${COMMAND}"
     eval ${COMMAND} &
     local CLONER_PID=$!
-    echo ${TIMELAPSE_PID} > ${PID_LOCATION}/cloner.pid
+    echo ${CLONER_PID} > ${PID_LOCATION}/cloner.pid
 
     local RUNTIME=$(($(date +%s)-START_TIMESTAMP))
     logInfo "Cloner process ${TIMELAPSE_PID} started, RUNTIME: ${RUNTIME}"

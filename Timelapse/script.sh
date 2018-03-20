@@ -139,6 +139,15 @@ function restart_timelapse {
     logInfo "Timelapse restarted, RUNTIME: ${RUNTIME}"
 }
 
+function cloneVideoDevice {
+    local START_TIMESTAMP=`date +%s`
+
+    ./cloneVideodevice.sh &>/dev/null &
+    
+    local RUNTIME=$(($(date +%s)-START_TIMESTAMP))
+    logInfo "Timelapse restarted, RUNTIME: ${RUNTIME}"
+}
+
 
 POSITIONAL=()
 while [[ $# -gt 0 ]]

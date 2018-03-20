@@ -160,7 +160,7 @@ function stop_cloner_process {
     local START_TIMESTAMP=`date +%s`
     
     local CLONER_PID=$(cat ${PID_LOCATION}/cloner.pid)
-    local COMMAND="kill -9 ${CLONER_PID} ; kill -9 $(pgrep -f 'ffmpeg -f video4linux2 -s 640x480 -i /dev/video0 -codec copy -f v4l2 /dev/video1 -codec copy -f v4l2 /dev/video2 &>/dev/null')"
+    local COMMAND="kill -9 ${CLONER_PID} ; kill -9 $(pgrep -f 'ffmpeg -f video4linux2 -s 640x480 -i /dev/video0 -codec copy -f v4l2 /dev/video1 -codec copy -f v4l2 /dev/video2')"
     logInfo "Executing command: ${COMMAND}"
     eval ${COMMAND}
     rm ${PID_LOCATION}/cloner.pid

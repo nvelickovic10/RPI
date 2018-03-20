@@ -142,6 +142,10 @@ function restart_timelapse {
 function start_cloner_process {
     local START_TIMESTAMP=`date +%s`
 
+    # v4l2-ctl --list-devices
+    modprobe -r v4l2loopback
+    modprobe v4l2loopback devices=2 
+
     local COMMAND="ffmpeg -f video4linux2 -s 640x480 -i /dev/video0 -codec copy -f v4l2 /dev/video1 -codec copy -f v4l2 /dev/video2 &>/dev/null"
     logInfo "Executing command: ${COMMAND}"
     eval ${COMMAND} &
@@ -160,6 +164,8 @@ function stop_cloner_process {
     logInfo "Executing command: ${COMMAND}"
     eval ${COMMAND}
     rm ${PID_LOCATION}/cloner.pid
+
+    modprobe -r v4l2loopback
 
     local RUNTIME=$(($(date +%s)-START_TIMESTAMP))
     logInfo "Cloner process ${TIMELAPSE_PID} stopped, RUNTIME: ${RUNTIME}"

@@ -210,7 +210,7 @@ function stop_all {
     stop_timelapse
     sleep 2
     stop_webserver
-    sleep2
+    sleep 2
     stop_cloner
     
     local RUNTIME=$(($(date +%s)-START_TIMESTAMP))
@@ -223,7 +223,7 @@ function start_all {
     start_cloner
     sleep 2
     start_webserver
-    sleep2
+    sleep 2
     start_timelapse
     
     local RUNTIME=$(($(date +%s)-START_TIMESTAMP))
